@@ -1,9 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'models/note.dart';
 import 'screens/home_screen.dart';
 import 'screens/explore_screen.dart';
+import 'services/appwrite_config_validator.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await dotenv.load(fileName: ".env");
+    print('✅ .env file loaded successfully');
+
+    // Validate configuration (only in debug mode)
+    assert(() {
+      AppwriteConfigValidator.validate();
+      return true;
+    }());
+  } catch (e) {
+    print('❌ Error loading .env file: $e');
+    print('Make sure .env file exists in the project root');
+  }
+
   runApp(const MyApp());
 }
 
@@ -15,9 +33,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Notes App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MainScreen(),
     );
   }
@@ -35,16 +51,8 @@ class _MainScreenState extends State<MainScreen> {
 
   // القايمة الرئيسية للملاحظات
   List<Note> notes = [
-    Note(
-      id: '1',
-      content: 'Learn Flutter',
-      createdAt: DateTime.now(),
-    ),
-    Note(
-      id: '2',
-      content: 'Complete tutorial',
-      createdAt: DateTime.now(),
-    ),
+    Note(id: '1', content: 'Learn Flutter', createdAt: DateTime.now()),
+    Note(id: '2', content: 'Complete tutorial', createdAt: DateTime.now()),
   ];
 
   // تحديث الملاحظات بعد الإضافة أو التعديل
@@ -90,14 +98,8 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.note),
-            label: 'Notes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Explore',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notes'),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
         ],
       ),
     );
